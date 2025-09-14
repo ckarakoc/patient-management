@@ -8,6 +8,8 @@ import nl.ckarakoc.patientservice.dto.PatientRequestDTO;
 import nl.ckarakoc.patientservice.dto.PatientResponseDTO;
 import nl.ckarakoc.patientservice.exception.EmailAlreadyExistsException;
 import nl.ckarakoc.patientservice.exception.PatientNotFoundException;
+import nl.ckarakoc.patientservice.grpc.BillingServiceGrpcClient;
+import nl.ckarakoc.patientservice.kafka.KafkaProducer;
 import nl.ckarakoc.patientservice.mapper.PatientMapper;
 import nl.ckarakoc.patientservice.model.Patient;
 import nl.ckarakoc.patientservice.repository.PatientRepository;
@@ -18,6 +20,8 @@ import org.springframework.stereotype.Service;
 public class PatientService {
 
   private final PatientRepository patientRepository;
+  private final BillingServiceGrpcClient billingServiceGrpcClient;
+  private final KafkaProducer kafkaProducer;
 
   public List<PatientResponseDTO> getPatients() {
     List<Patient> patients = patientRepository.findAll();
@@ -29,6 +33,10 @@ public class PatientService {
       throw new EmailAlreadyExistsException("A patient with this email already exists " + patientRequestDTO.getEmail());
     }
     Patient newPatient = patientRepository.save(PatientMapper.toModel(patientRequestDTO));
+
+    billingServiceGrpcClient.createBillingAccount(newPatient.getId().toString(), newPatient.getName(), newPatient.getEmail());
+    kafkaProducer.sendEvent(newPatient);
+
     return PatientMapper.toDTO(newPatient);
   }
 

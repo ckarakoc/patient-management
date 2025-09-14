@@ -74,10 +74,6 @@ buildNumber.properties
 .env.*.local
 *.env
 *.env.*
-application*.properties
-application*.yml
-!application-dev.*
-!application-docker.*
 
 ignored
 docker
