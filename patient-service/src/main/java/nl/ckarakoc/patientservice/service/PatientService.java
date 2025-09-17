@@ -13,7 +13,9 @@ import nl.ckarakoc.patientservice.kafka.KafkaProducer;
 import nl.ckarakoc.patientservice.mapper.PatientMapper;
 import nl.ckarakoc.patientservice.model.Patient;
 import nl.ckarakoc.patientservice.repository.PatientRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +44,6 @@ public class PatientService {
 
   public PatientResponseDTO updatePatient(UUID id, PatientRequestDTO patientRequestDTO) {
     Patient patient = patientRepository.findById(id).orElseThrow(() -> new PatientNotFoundException("Patient not found with ID: " + id));
-
     if (patientRepository.existsByEmailAndIdNot(patientRequestDTO.getEmail(), id)) {
       throw new EmailAlreadyExistsException("A patient with this email already exists " + patientRequestDTO.getEmail());
     }
