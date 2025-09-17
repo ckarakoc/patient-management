@@ -1,0 +1,30 @@
+### Login Request to retrieve a token
+POST http://localhost:4005/login
+Content-Type: application/json
+
+{
+  "email": "testuser@test.com",
+  "password": "password123"
+}
+
+> {% client.global.set("token", response.body.token) %}
+
+### Get request to validate token
+GET http://localhost:4005/validate
+Authorization: Bearer {{token}}
+
+### API GATEWAY
+### Login Request to retrieve a token
+POST http://localhost:4004/auth/login
+Content-Type: application/json
+
+{
+  "email": "testuser@test.com",
+  "password": "password123"
+}
+
+> {% client.global.set("token", response.body.token) %}
+
+### Get request to validate token
+GET http://localhost:4004/auth/validate
+Authorization: Bearer {{token}}
